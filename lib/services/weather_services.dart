@@ -23,21 +23,33 @@ class WeatherService{
     }
   }
 
-  Future<String> getCurrentCity() async{
+  Future<String> getCurrentCity() async {
+  try {
+    print("Verificando permissão...");
     LocationPermission permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied){
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
+
+    print("Obtendo posição...");
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.high);
 
-    List<Placemark> placemarks = 
+    print("Latitude: ${position.latitude}, Longitude: ${position.longitude}");
+
+    List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
-  
 
-  String? city = placemarks[0].locality;
+    print("Placemarks encontrados: $placemarks");
 
-  return city ?? "";
+    String? city = placemarks[0].locality;
+
+    print("Cidade detectada: $city");
+
+    return city ?? "";
+  } catch (e) {
+    print("Erro ao obter localização: $e");
+    return "";
+  }
   }
 }
-
