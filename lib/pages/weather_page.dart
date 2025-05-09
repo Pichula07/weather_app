@@ -11,7 +11,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  final _weatherService = WeatherService('a8927c82d2d1e95d743012e56c2231c0');
+  final _weatherService = WeatherService('bc1a317d22e6e04bf645f817daa4bea1');
   Weather? _weather;
 
   _fetchWeather() async {
@@ -46,7 +46,7 @@ class _WeatherPageState extends State<WeatherPage> {
     case 'thunderstorm':
       return 'assets/thunder.json';
     case 'clear':
-      return isNight ? 'assets/clean_night.json' : 'assets/sunny.json'; 
+      return isNight ? 'assets/clean_night.json' : 'assets/sunny.json';
     default:
       return isNight ? 'assets/clean_night.json' : 'assets/sunny.json';
   }
@@ -61,10 +61,10 @@ class _WeatherPageState extends State<WeatherPage> {
  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, 
+      backgroundColor: Colors.black,
       body: Center(
         child: _weather == null
-            ? const CircularProgressIndicator(color: Colors.white) 
+            ? const CircularProgressIndicator(color: Colors.white)
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
