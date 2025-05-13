@@ -1,17 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
-import '../services/weather_services.dart';
 
-class WeatherPage extends StatefulWidget {
-  const WeatherPage({super.key});
+class Cidades extends StatefulWidget {
+  const Cidades({super.key});
 
   @override
-  _WeatherPageState createState() => _WeatherPageState();
+  _CidadesState createState() => _CidadesState();
 }
 
-class _WeatherPageState extends State<WeatherPage> {
-  final weatherService = WeatherService();
+class _CidadesState extends State<Cidades> {
+  final String apiKey = '4GOuMoZdG4mwaLb6XHCtlNHUG2ImfxIA';
 
   String? cityName;
   String? weatherText;
@@ -31,19 +32,19 @@ class _WeatherPageState extends State<WeatherPage> {
     try {
       final position = await _determinePosition();
 
-      final locationKey = await weatherService.getCityCode(position.latitude, position.longitude);
+      final locationKey = await getCityCode(position.latitude, position.longitude);
       if (locationKey == null) {
         setState(() => error = 'Erro ao obter código da cidade');
         return;
       }
 
-      final current = await weatherService.getCurrentConditions(locationKey);
+      final current = await getCurrentConditions(locationKey);
       if (current == null) {
         setState(() => error = 'Erro ao buscar clima atual');
         return;
       }
 
-      final futureForecast = await weatherService.getForecast(locationKey);
+      final futureForecast = await getForecast(locationKey);
 
       setState(() {
         cityName = current['city'];
@@ -71,6 +72,58 @@ class _WeatherPageState extends State<WeatherPage> {
     if (permission == LocationPermission.deniedForever) throw 'Permissão permanente negada';
 
     return await Geolocator.getCurrentPosition();
+  }
+
+  Future<String?> getCityCode(double lat, double lon) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=$apiKey&q=$lat,$lon');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      cityName = data['LocalizedName'];
+      return data['Key'];
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> getCurrentConditions(String locationKey) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/currentconditions/v1/$locationKey?apikey=$apiKey&language=pt-br');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final condition = data[0]['WeatherText'];
+      final temp = data[0]['Temperature']['Metric']['Value'];
+      final icon = data[0]['WeatherIcon'].toString();
+
+      return {
+        'city': cityName,
+        'text': condition,
+        'temp': temp,
+        'icon': icon,
+      };
+    }
+    return null;
+  }
+
+  Future<List<String>> getForecast(String locationKey) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/forecasts/v1/daily/5day/$locationKey?apikey=$apiKey&language=pt-br&metric=true');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List forecasts = data['DailyForecasts'];
+      return forecasts.map<String>((f) {
+        final date = f['Date'].substring(0, 10);
+        final min = f['Temperature']['Minimum']['Value'];
+        final max = f['Temperature']['Maximum']['Value'];
+        return '$date: $min°C - $max°C';
+      }).toList();
+    }
+    return [];
   }
 
   String getWeatherAnimation(String? condition, String? iconCode) {
@@ -161,16 +214,11 @@ class _WeatherPageState extends State<WeatherPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              forecast.isEmpty
-                  ? const Text(
-                "Sem dados de previsão",
-                style: TextStyle(color: Colors.white),
-              )
-                  : Column(
-                children: forecast
-                    .map((f) => Text(f, style: const TextStyle(color: Colors.white)))
-                    .toList(),
-              ),
+              for (var f in forecast)
+                Text(
+                  f,
+                  style: const TextStyle(color: Colors.white),
+                ),
             ],
           ),
         ),

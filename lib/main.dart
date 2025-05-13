@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:weather_app/pages/Cidades.dart'; // bckp com api e front juntos
 import 'package:weather_app/pages/weather_page.dart';
 
 void main() {
@@ -10,8 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-    debugShowCheckedModeBanner:false, 
-    home: WeatherPage());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const WeatherPage(), // alterar para cidades se for usar
+    );
   }
 }
