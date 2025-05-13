@@ -1,66 +1,57 @@
+// lib/services/weather_service.dart
 import 'dart:convert';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:weather_app/models/weather_models.dart';
 
 class WeatherService {
-  static const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
-  final String apiKey;
+  final String apiKey = '4GOuMoZdG4mwaLb6XHCtlNHUG2ImfxIA';
 
-  WeatherService(this.apiKey);
-
-  Future<Weather> getWeather(String cityName) async {
-    final url = Uri.parse('$BASE_URL?q=$cityName&appid=$apiKey&units=metric');
-    print("Fazendo requisição para: $url");
-
+  Future<String?> getCityCode(double lat, double lon) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey=$apiKey&q=$lat,$lon');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return Weather.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load weather data');
+      final data = jsonDecode(response.body);
+      return data['Key'];
     }
+    return null;
   }
 
-  Future<String> getCurrentCity() async {
-    try {
-      print("Verificando permissão...");
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception("Permissão de localização negada.");
-        }
-      }
+  Future<Map<String, dynamic>?> getCurrentConditions(String locationKey) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/currentconditions/v1/$locationKey?apikey=$apiKey&language=pt-br');
+    final response = await http.get(url);
 
-      print("Obtendo posição...");
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final condition = data[0]['WeatherText'];
+      final temp = data[0]['Temperature']['Metric']['Value'];
+      final icon = data[0]['WeatherIcon'].toString();
 
-      print("Latitude: ${position.latitude}, Longitude: ${position.longitude}");
-
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-
-      print("Placemarks encontrados: $placemarks");
-
-      String? city = placemarks[0].locality;
-
-      if (city == null || city.isEmpty) {
-        city = placemarks[0].subAdministrativeArea ??
-               placemarks[0].administrativeArea;
-      }
-
-      if (city == null || city.isEmpty) {
-        throw Exception("Cidade não detectada");
-      }
-
-      print("Cidade detectada: $city");
-      return city;
-    } catch (e) {
-      print("Erro ao obter a cidade: $e");
-      throw Exception("Erro ao obter a cidade: $e");
+      return {
+        'text': condition,
+        'temp': temp,
+        'icon': icon,
+      };
     }
+    return null;
+  }
+
+  Future<List<String>> getForecast(String locationKey) async {
+    final url = Uri.parse(
+        'http://dataservice.accuweather.com/forecasts/v1/daily/5day/$locationKey?apikey=$apiKey&language=pt-br&metric=true');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List forecasts = data['DailyForecasts'];
+      return forecasts.map<String>((f) {
+        final date = f['Date'].substring(0, 10);
+        final min = f['Temperature']['Minimum']['Value'];
+        final max = f['Temperature']['Maximum']['Value'];
+        return '$date: $min°C - $max°C';
+      }).toList();
+    }
+    return [];
   }
 }
