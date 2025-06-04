@@ -11,9 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const WeatherPage(), // alterar para cidades se for usar
+      home: WeatherPage(), // alterar para cidades se for usar
     );
   }
 }
