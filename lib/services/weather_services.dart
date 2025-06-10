@@ -46,7 +46,7 @@ class WeatherService {
       final data = jsonDecode(response.body);
       final List forecasts = data['DailyForecasts'];
       return forecasts.map<String>((f) {
-        final date = f['Date'].substring(0, 10);
+        final date = f['Date'].substring(8, 10);
         final min = f['Temperature']['Minimum']['Value'];
         final max = f['Temperature']['Maximum']['Value'];
         return '$date: $min°C - $max°C';
