@@ -142,8 +142,9 @@ class _WeatherPageState extends State<WeatherPage>
     if (condition == null) return 'assets/sunny.json';
     final lower = condition.toLowerCase();
 
-    if (lower.contains('chuva') || lower.contains('garoa'))
+    if (lower.contains('chuva') || lower.contains('garoa')) {
       return 'assets/rain.json';
+    }
     if (lower.contains('nublado') ||
         lower.contains('neblina') ||
         lower.contains('algumas nuvens')) {
@@ -264,8 +265,8 @@ class _WeatherPageState extends State<WeatherPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Center(
-                                        child: const Text(
+                                      const Center(
+                                        child: Text(
                                           'Próximas Horas',
                                           style: TextStyle(
                                             fontSize: 15,
@@ -307,8 +308,8 @@ class _WeatherPageState extends State<WeatherPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Center(
-                                        child: const Text(
+                                      const Center(
+                                        child: Text(
                                           'Próximos Dias',
                                           style: TextStyle(
                                             fontSize: 15,
