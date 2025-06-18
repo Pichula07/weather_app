@@ -356,7 +356,7 @@ class _WeatherPageState extends State<WeatherPage>
                             child: Container(
   padding: const EdgeInsets.all(10),
   decoration: BoxDecoration(
-    color: Color.fromARGB(10, 255, 255, 255),
+    color: const Color.fromARGB(10, 255, 255, 255),
     borderRadius: BorderRadius.circular(20),
   ),
   child: Text(
@@ -433,7 +433,7 @@ class _WeatherPageState extends State<WeatherPage>
                                               vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Color.fromARGB(10, 255, 255, 255),
+                                              color: const Color.fromARGB(10, 255, 255, 255),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
@@ -476,16 +476,16 @@ class _WeatherPageState extends State<WeatherPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      cconst Center(
-                                                child: Text(
-                                                  'Próximos Dias',
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white70,
-                                                  ),
-                                                ),
+                                     const Center(
+                                            child: Text(
+                                              'Próximos Dias',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white70,
                                               ),
+                                            ),
+                                          ),
                                       const SizedBox(height: 10),
                                       ...List.generate(5, (index) {
                                         final item =
@@ -500,7 +500,7 @@ class _WeatherPageState extends State<WeatherPage>
                                             height: 48,
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: Color.fromARGB(10, 255, 255, 255),
+                                              color: const Color.fromARGB(10, 255, 255, 255),
 
                                               borderRadius:
                                                   BorderRadius.circular(20),
@@ -596,10 +596,10 @@ class _WeatherPageState extends State<WeatherPage>
                                   style: TextStyle(color: Colors.white70),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Color.fromARGB(10, 255, 255, 255),
+                                  color: const Color.fromARGB(10, 255, 255, 255),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 margin: const EdgeInsets.symmetric(
@@ -642,7 +642,7 @@ class _WeatherPageState extends State<WeatherPage>
         constraints: const BoxConstraints(minHeight: 60),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Color.fromARGB(10, 255, 255, 255),
+          color: const Color.fromARGB(10, 255, 255, 255),
           borderRadius: BorderRadius.circular(20),
         ),
         width: double.infinity,
