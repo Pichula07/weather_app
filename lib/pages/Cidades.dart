@@ -103,25 +103,33 @@ class _CidadesState extends State<Cidades> {
         'text': condition,
         'temp': temp,
         'icon': icon,
+        
       };
     }
     return null;
   }
 
+  /// Busca a previsão dos próximos 5 dias para a localização fornecida.
   Future<List<String>> getForecast(String locationKey) async {
     final url = Uri.parse(
-        'http://dataservice.accuweather.com/forecasts/v1/daily/5day/$locationKey?apikey=$apiKey&language=pt-br&metric=true');
+        'http://dataservice.accuweather.com/forecasts/v1/daily/5day/$locationKey?apikey=$apiKey&language=pt-br&metric=true&details=true');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List forecasts = data['DailyForecasts'];
-      return forecasts.map<String>((f) {
-        final date = f['Date'].substring(0, 10);
-        final min = f['Temperature']['Minimum']['Value'];
-        final max = f['Temperature']['Maximum']['Value'];
-        return '$date: $min°C - $max°C';
-      }).toList();
+      final headline = data['Headline']?['Text'] ?? '';
+
+      return [
+        'Aviso: $headline',
+        ...forecasts.map<String>((f) {
+          final date = f['Date'].substring(0, 10);
+          final min = f['Temperature']['Minimum']['Value'];
+          final max = f['Temperature']['Maximum']['Value'];
+          final phrase = f['Day']['LongPhrase'];
+          return '$date: $min°C - $max°C | $phrase';
+        }),
+      ];
     }
     return [];
   }
