@@ -202,8 +202,9 @@ class _WeatherPageState extends State<WeatherPage>
     if (condition == null) return 'assets/sunny.json';
     final lower = condition.toLowerCase();
 
-    if (lower.contains('chuva') || lower.contains('garoa'))
+    if (lower.contains('chuva') || lower.contains('garoa')) {
       return 'assets/rain.json';
+    }
     if (lower.contains('nublado') ||
         lower.contains('neblina') ||
         lower.contains('algumas nuvens')) {
@@ -385,16 +386,16 @@ class _WeatherPageState extends State<WeatherPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Center(
-                                        child: Text(
-                                          'Próximos Dias',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(170, 255, 255, 255),
-                                          ),
+                                const Center(
+                                      child: Text(
+                                        'Próximas Horas',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromARGB(170, 255, 255, 255),
                                         ),
                                       ),
+                                    ),
                                       const SizedBox(height: 10),
                                       ...List.generate(5, (index) {
                                         final item =
@@ -475,16 +476,16 @@ class _WeatherPageState extends State<WeatherPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Center(
-                                        child: Text(
-                                          'Próximas Horas',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white70,
-                                          ),
-                                        ),
-                                      ),
+                                      cconst Center(
+                                                child: Text(
+                                                  'Próximos Dias',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white70,
+                                                  ),
+                                                ),
+                                              ),
                                       const SizedBox(height: 10),
                                       ...List.generate(5, (index) {
                                         final item =
