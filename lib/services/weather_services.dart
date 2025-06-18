@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class WeatherService {
-  final String apiKey = '4GOuMoZdG4mwaLb6XHCtlNHUG2ImfxIA';
+  //final String apiKey = '4GOuMoZdG4mwaLb6XHCtlNHUG2ImfxIA';
+  final String apiKey = 'ANnvthyLR5pr2nBDHOf7oMATppe6vXQm';
 
   Future<String?> getCityCode(double lat, double lon) async {
     final url = Uri.parse(
@@ -53,5 +54,19 @@ class WeatherService {
       }).toList();
     }
     return [];
+  }
+  Future<Map<String, dynamic>?> getRawForecast(String locationKey) async {
+    final url = Uri.parse(
+      'http://dataservice.accuweather.com/forecasts/v1/daily/5day/$locationKey?apikey=$apiKey&language=pt-br&metric=true&details=true',
+    );
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Erro ao obter previsão detalhada: ${response.statusCode}');
+      return null;
+    }
   }
 }

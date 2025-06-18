@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -23,6 +24,18 @@ class _WeatherPageState extends State<WeatherPage>
   List<String> forecastDays = [];
   String? error;
   bool isLoading = true;
+
+  String? headlineText;
+  String? sunrise;
+  String? sunset;
+
+  // Novas variáveis para detalhes extras
+  String? airQuality;
+  String? uvCategory;
+  int? averageHumidity;
+  int? rainProbability;
+  String? windDirection;
+  double? windSpeedValue;
 
   late AnimationController _lottieController;
 
@@ -96,6 +109,44 @@ class _WeatherPageState extends State<WeatherPage>
       }
 
       final futureForecast = await weatherService.getForecast(locationKey);
+      final headline = futureForecast.isNotEmpty ? futureForecast[0] : '';
+
+      // CORREÇÃO: buscar os dados assíncronos ANTES do setState
+      final firstForecast = await weatherService.getRawForecast(locationKey);
+      String? sunriseValue;
+      String? sunsetValue;
+      String? headlineValue;
+      String? airQualityValue;
+      String? uvCategoryValue;
+      int? averageHumidityValue;
+      int? rainProbabilityValue;
+      String? windDirectionValue;
+      double? windSpeedValueLocal;
+      if (firstForecast != null &&
+          firstForecast['DailyForecasts']?.isNotEmpty == true) {
+        final today = firstForecast['DailyForecasts'][0];
+        sunriseValue = today['Sun']['Rise']?.substring(11, 16);
+        sunsetValue = today['Sun']['Set']?.substring(11, 16);
+        headlineValue = firstForecast['Headline']['Text'];
+        final day = today['Day'];
+        final airPollen = today['AirAndPollen'];
+        final humidity = day['RelativeHumidity']?['Average'];
+        final rainProb = day['RainProbability'];
+        final uvIndex = airPollen?.firstWhere(
+          (e) => e['Name'] == 'UVIndex',
+          orElse: () => null,
+        );
+        final wind = day['Wind'];
+        final windDir = wind?['Direction']?['English'];
+        final windSpeed = wind?['Speed']?['Value'];
+
+        airQualityValue = airPollen?[0]?['Category'];
+        uvCategoryValue = uvIndex?['Category'];
+        averageHumidityValue = humidity;
+        rainProbabilityValue = rainProb;
+        windDirectionValue = windDir;
+        windSpeedValueLocal = windSpeed?.toDouble();
+      }
 
       setState(() {
         cityName = nomeLocal;
@@ -104,6 +155,15 @@ class _WeatherPageState extends State<WeatherPage>
         weatherIconPhrase = current['icon'] as String?;
         forecastHours = futureForecast.take(5).toList();
         forecastDays = futureForecast.skip(5).take(5).toList();
+        sunrise = sunriseValue;
+        sunset = sunsetValue;
+        headlineText = headlineValue;
+        airQuality = airQualityValue;
+        uvCategory = uvCategoryValue;
+        averageHumidity = averageHumidityValue;
+        rainProbability = rainProbabilityValue;
+        windDirection = windDirectionValue;
+        windSpeedValue = windSpeedValueLocal;
         error = null;
         isLoading = false;
       });
@@ -166,6 +226,41 @@ class _WeatherPageState extends State<WeatherPage>
     return 'assets/sunny.json';
   }
 
+  LinearGradient getDynamicGradient() {
+    final now = DateTime.now();
+    final hour = now.hour;
+
+    if (hour >= 5 && hour < 8) {
+      // Amanhecer
+      return const LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [Color.fromARGB(255, 213, 151, 59), Color.fromARGB(255, 195, 127, 110), Color.fromARGB(255, 134, 83, 147), Color.fromARGB(255, 90, 63, 135), Color.fromARGB(255, 6, 30, 42)],
+      );
+    } else if (hour >= 8 && hour < 18) {
+      // Dia
+      return const LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [Color.fromARGB(255, 91, 136, 163), Color.fromARGB(255, 8, 31, 44)],
+      );
+    } else if (hour >= 18 && hour < 19) {
+      // Anoitecer
+      return const LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [Color.fromARGB(255, 1, 18, 48), Color.fromARGB(255, 26, 49, 67), Color.fromARGB(255, 124, 108, 64), Color.fromARGB(255, 240, 164, 32)],
+      );
+    } else {
+      // Noite
+      return const LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+       colors: [Color.fromARGB(255, 91, 136, 163), Color.fromARGB(255, 8, 31, 44)],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,17 +282,11 @@ class _WeatherPageState extends State<WeatherPage>
       ),
       extendBodyBehindAppBar: true,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF58839E), Color(0xFF061E2A)],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: getDynamicGradient()),
         child: Center(
           child:
               isLoading
-                 ? const CircularProgressIndicator(color: Colors.white)
+                  ? const CircularProgressIndicator(color: Colors.white)
                   : error != null
                   ? Text(
                     error!,
@@ -209,16 +298,26 @@ class _WeatherPageState extends State<WeatherPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          cityName ?? "Localização...",
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                        // 1. Cidade
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            top: 25,
+                            bottom: 35,
+                          ),
+                          child: Text(
+                            cityName ?? "Localização...",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromARGB(210, 255, 255, 255),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
+                        // 2. GIF (animação)
                         Lottie.asset(
                           getWeatherAnimation(weatherText, weatherIconPhrase),
                           width: 200,
@@ -232,40 +331,142 @@ class _WeatherPageState extends State<WeatherPage>
                           },
                         ),
                         const SizedBox(height: 20),
-                        Text(
-                          weatherText ?? "Clima...",
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
+                        // 3. Temperatura
                         Text(
                           '${temperature?.round() ?? '--'}ºC',
                           style: const TextStyle(
                             fontSize: 45,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Color.fromARGB(200, 255, 255, 255),
                           ),
                         ),
+                        Text(
+                          weatherText ?? "Clima...",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color.fromARGB(200, 255, 255, 255),
+                          ),
+                        ),
+                        // 4. Aviso (headline)
+                        if (headlineText != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 16),
+                            child: Text(
+                              headlineText!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color.fromARGB(220, 255, 255, 86),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        // 5. Previsões próximas (dias e horas)
                         const SizedBox(height: 30),
                         const SizedBox(height: 10),
                         forecastDays.isEmpty && forecastHours.isEmpty
                             ? const Text(
                               "Sem dados de previsão",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Color.fromARGB(200, 255, 255, 255)),
                             )
                             : Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Coluna da PREVISÃO POR HORAS (usando forecastHours) - TÍTULO CENTRALIZADO
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Center(
+                                        child: Text(
+                                          'Próximos Dias',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color.fromARGB(200, 255, 255, 255),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      ...List.generate(5, (index) {
+                                        final item =
+                                            forecastHours.length > index
+                                                ? forecastHours[index]
+                                                : '';
+                                        // Extrai a parte em negrito (hora) e o restante (descrição)
+                                        String boldPart = '';
+                                        String rest = item;
+                                        // Tenta dividir pelo primeiro espaço ou hífen
+                                        final match = RegExp(
+                                          r'^([^\s\-]+)[\s\-]+(.*)$',
+                                        ).firstMatch(item);
+                                        if (match != null) {
+                                          boldPart = match.group(1) ?? '';
+                                          // Substitui valores numéricos decimais por inteiros arredondados em rest
+                                          rest = (match.group(2) ?? '')
+                                              .replaceAllMapped(
+                                                RegExp(r'(\d+\.\d+)'),
+                                                (m) {
+                                                  return double.parse(
+                                                    m.group(1)!,
+                                                  ).round().toString();
+                                                },
+                                              );
+                                        }
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Container(
+                                            height: 48,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white12,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  boldPart,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color.fromARGB(200, 255, 255, 255),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    rest,
+                                                    style: const TextStyle(
+                                                      color: Color.fromARGB(200, 255, 255, 255),
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
                                 // Coluna da PREVISÃO POR DIAS (usando forecastDays) - TÍTULO CENTRALIZADO
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Center(
-                                        child: const Text(
+                                      const Center(
+                                        child: Text(
                                           'Próximas Horas',
                                           style: TextStyle(
                                             fontSize: 15,
@@ -276,65 +477,31 @@ class _WeatherPageState extends State<WeatherPage>
                                       ),
                                       const SizedBox(height: 10),
                                       ...List.generate(5, (index) {
-                                        final item = forecastDays.length > index ? forecastDays[index] : '';
+                                        final item =
+                                            forecastDays.length > index
+                                                ? forecastDays[index]
+                                                : '';
                                         return Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
                                           child: Container(
                                             height: 48,
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: Colors.white12,
-                                              borderRadius: BorderRadius.circular(8),
+
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
                                             ),
                                             child: SizedBox(
                                               width: double.infinity,
                                               child: Text(
                                                 item,
                                                 textAlign: TextAlign.center,
-                                                style: const TextStyle(color: Colors.white),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // Coluna da PREVISÃO POR HORAS (usando forecastHours) - TÍTULO CENTRALIZADO
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Center(
-                                        child: const Text(
-                                          'Próximos Dias',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white70,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      ...List.generate(5, (index) {
-                                        final item = forecastHours.length > index ? forecastHours[index] : '';
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 4),
-                                          child: Container(
-                                            height: 48,
-                                            padding: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white12,
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: SizedBox(
-                                              width: double.infinity,
-                                              child: Text(
-                                                item,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(color: Colors.white),
+                                                style: const TextStyle(
+                                                  color: Color.fromARGB(200, 255, 255, 255),
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -345,6 +512,110 @@ class _WeatherPageState extends State<WeatherPage>
                                 ),
                               ],
                             ),
+                        // 6. Dados climáticos (qualidade do ar, umidade, etc.)
+                        if (airQuality != null ||
+                            uvCategory != null ||
+                            averageHumidity != null ||
+                            rainProbability != null ||
+                            windDirection != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 20),
+                              const Center(
+                                child: Text(
+                                  'Detalhes do Clima',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        if (airQuality != null)
+                                          _buildInfoTile('🍃✅', airQuality!),
+                                        if (uvCategory != null)
+                                          _buildInfoTile('🌞📈', uvCategory!),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        if (averageHumidity != null)
+                                          _buildInfoTile(
+                                            '🌫️💧',
+                                            '$averageHumidity%',
+                                          ),
+                                        if (rainProbability != null)
+                                          _buildInfoTile(
+                                            '☔️🤷',
+                                            '$rainProbability%',
+                                          ),
+                                        if (windDirection != null &&
+                                            windSpeedValue != null)
+                                          _buildInfoTile(
+                                            '🌬️',
+                                            '$windDirection, ${windSpeedValue!.round()} km/h',
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // 7. Nascer e pôr do sol (gráfico semicircular)
+                              const SizedBox(height: 20),
+                              const Padding(
+                                padding: EdgeInsets.only(
+                                  right: 5,
+                                  left: 5,
+                                  top: 5,
+                                  bottom: 5,
+                                ),
+                                child: Text(
+                                  'Nascer e Pôr do Sol',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white12,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minHeight: 200,
+                                ),
+                                width: double.infinity,
+                                height: 200,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    right: 5,
+                                    left: 5,
+                                    top: 5,
+                                    bottom: 50,
+                                  ),
+                                  child: CustomPaint(
+                                    painter: SunPathPainter(
+                                      sunriseTime: sunrise,
+                                      sunsetTime: sunset,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -352,4 +623,116 @@ class _WeatherPageState extends State<WeatherPage>
       ),
     );
   }
+
+  Widget _buildInfoTile(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 60),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white12,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        width: double.infinity,
+        child: Center(
+          child: Text(
+            '$title: $value',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SunPathPainter extends CustomPainter {
+  final String? sunriseTime;
+  final String? sunsetTime;
+
+  SunPathPainter({this.sunriseTime, this.sunsetTime});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint =
+        Paint()
+          ..color = Colors.white30
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+
+    final center = Offset(size.width / 2, size.height);
+    final radius = size.width / 2 - 20;
+
+    // Desenha semicírculo voltado para cima
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    canvas.drawArc(rect, 3.14, 3.14, false, paint);
+
+    // Parse horários de nascer e pôr do sol
+    DateTime? sunriseDateTime;
+    DateTime? sunsetDateTime;
+    try {
+      final now = DateTime.now();
+      if (sunriseTime != null && sunsetTime != null) {
+        final sunriseParts = sunriseTime!.split(':').map(int.parse).toList();
+        final sunsetParts = sunsetTime!.split(':').map(int.parse).toList();
+        sunriseDateTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          sunriseParts[0],
+          sunriseParts[1],
+        );
+        sunsetDateTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          sunsetParts[0],
+          sunsetParts[1],
+        );
+      }
+    } catch (_) {}
+
+    // Sol em posição dinâmica ao longo do arco
+    final sunPaint = Paint()..color = Colors.amber;
+    if (sunriseDateTime != null && sunsetDateTime != null) {
+      final now = DateTime.now();
+      final totalMinutes = sunsetDateTime.difference(sunriseDateTime).inMinutes;
+      final elapsedMinutes = now
+          .difference(sunriseDateTime)
+          .inMinutes
+          .clamp(0, totalMinutes);
+      final angle = (elapsedMinutes / totalMinutes) * 3.14;
+
+      final sunX = center.dx + radius * cos(angle + 3.14);
+      final sunY = center.dy + radius * sin(angle + 3.14);
+
+      canvas.drawCircle(Offset(sunX, sunY), 8, sunPaint);
+    }
+
+    // Marcas de horário ajustadas abaixo das pontas do arco
+    final textPainter1 = TextPainter(
+      text: TextSpan(
+        text: sunriseTime ?? '--:--',
+        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    final textPainter2 = TextPainter(
+      text: TextSpan(
+        text: sunsetTime ?? '--:--',
+        style: const TextStyle(color: Colors.white, fontSize: 12,fontWeight: FontWeight.bold),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter1.layout();
+    textPainter2.layout();
+
+    textPainter1.paint(canvas, Offset(center.dx - radius - 15, center.dy + 10));
+    textPainter2.paint(canvas, Offset(center.dx + radius - 15, center.dy + 10));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
