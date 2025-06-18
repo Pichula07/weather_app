@@ -18,6 +18,13 @@ dependencies:
   geolocator: ^13.0.4
   geocoding: ^3.0.0
   lottie: ^3.3.1
+  flutter_native_splash: ^2.4.6
+
+
+flutter_native_splash:
+  color: "#325A6E" 
+  image: assets/splash.png
+  android: true
 
 
 dev_dependencies:

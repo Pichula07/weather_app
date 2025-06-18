@@ -230,33 +230,33 @@ class _WeatherPageState extends State<WeatherPage>
     final now = DateTime.now();
     final hour = now.hour;
 
-    if (hour >= 5 && hour < 8) {
+    if (hour >= 6 && hour < 7) {
       // Amanhecer
       return const LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
-        colors: [Color.fromARGB(255, 213, 151, 59), Color.fromARGB(255, 195, 127, 110), Color.fromARGB(255, 134, 83, 147), Color.fromARGB(255, 90, 63, 135), Color.fromARGB(255, 6, 30, 42)],
+        colors: [Color.fromARGB(255, 213, 151, 59), Color.fromARGB(255, 195, 127, 110), Color.fromARGB(255, 134, 83, 147), Color.fromARGB(255, 76, 52, 115), Color.fromARGB(255, 6, 30, 42)],
       );
-    } else if (hour >= 8 && hour < 18) {
+    } else if (hour >= 7 && hour < 17) {
       // Dia
       return const LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
-        colors: [Color.fromARGB(255, 91, 136, 163), Color.fromARGB(255, 8, 31, 44)],
+        colors: [Color.fromARGB(255, 45, 140, 195), Color.fromARGB(255, 0, 3, 5)],
       );
-    } else if (hour >= 18 && hour < 19) {
+    } else if (hour >= 17 && hour < 18) {
       // Anoitecer
       return const LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
-        colors: [Color.fromARGB(255, 1, 18, 48), Color.fromARGB(255, 26, 49, 67), Color.fromARGB(255, 124, 108, 64), Color.fromARGB(255, 240, 164, 32)],
+        colors: [Color.fromARGB(255, 1, 23, 62), Color.fromARGB(255, 32, 69, 97), Color.fromARGB(255, 174, 115, 21), Color.fromARGB(255, 250, 92, 0)],
       );
     } else {
       // Noite
       return const LinearGradient(
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
-       colors: [Color.fromARGB(255, 91, 136, 163), Color.fromARGB(255, 8, 31, 44)],
+       colors: [Color.fromARGB(255, 1, 59, 113), Color.fromARGB(255, 0, 2, 8)],
       );
     }
   }
@@ -312,7 +312,7 @@ class _WeatherPageState extends State<WeatherPage>
                             style: const TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(210, 255, 255, 255),
+                              color: Color.fromARGB(180, 255, 255, 255),
                             ),
                           ),
                         ),
@@ -337,7 +337,7 @@ class _WeatherPageState extends State<WeatherPage>
                           style: const TextStyle(
                             fontSize: 45,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(200, 255, 255, 255),
+                            color: Color.fromARGB(180, 255, 255, 255),
                           ),
                         ),
                         Text(
@@ -345,29 +345,36 @@ class _WeatherPageState extends State<WeatherPage>
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color.fromARGB(200, 255, 255, 255),
+                            color: Color.fromARGB(170, 255, 255, 255),
                           ),
                         ),
                         // 4. Aviso (headline)
                         if (headlineText != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 10, bottom: 16),
-                            child: Text(
-                              headlineText!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color.fromARGB(220, 255, 255, 86),
-                                fontSize: 12,
-                              ),
-                            ),
+                            child: Container(
+  padding: const EdgeInsets.all(10),
+  decoration: BoxDecoration(
+    color: Color.fromARGB(10, 255, 255, 255),
+    borderRadius: BorderRadius.circular(20),
+  ),
+  child: Text(
+    headlineText!,
+    textAlign: TextAlign.center,
+    style: const TextStyle(
+      color: Color.fromARGB(220, 255, 255, 86),
+      fontSize: 12,
+    ),
+  ),
+),
                           ),
                         // 5. Previsões próximas (dias e horas)
-                        const SizedBox(height: 30),
+                        //const SizedBox(height: 0),
                         const SizedBox(height: 10),
                         forecastDays.isEmpty && forecastHours.isEmpty
                             ? const Text(
                               "Sem dados de previsão",
-                              style: TextStyle(color: Color.fromARGB(200, 255, 255, 255)),
+                              style: TextStyle(color: Color.fromARGB(170, 255, 255, 255)),
                             )
                             : Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,7 +391,7 @@ class _WeatherPageState extends State<WeatherPage>
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(200, 255, 255, 255),
+                                            color: Color.fromARGB(170, 255, 255, 255),
                                           ),
                                         ),
                                       ),
@@ -425,7 +432,7 @@ class _WeatherPageState extends State<WeatherPage>
                                               vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Colors.white12,
+                                              color: Color.fromARGB(10, 255, 255, 255),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
@@ -435,21 +442,24 @@ class _WeatherPageState extends State<WeatherPage>
                                                   boldPart,
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Color.fromARGB(200, 255, 255, 255),
+                                                    color: Color.fromARGB(170, 255, 255, 255),
                                                   ),
+                                                  textAlign: TextAlign.right,
                                                 ),
                                                 const SizedBox(width: 6),
                                                 Expanded(
                                                   child: Text(
                                                     rest,
                                                     style: const TextStyle(
-                                                      color: Color.fromARGB(200, 255, 255, 255),
+                                                      color: Color.fromARGB(170, 255, 255, 255),
                                                     ),
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     textAlign: TextAlign.center,
                                                   ),
+                                                  
                                                 ),
+                                                
                                               ],
                                             ),
                                           ),
@@ -489,7 +499,7 @@ class _WeatherPageState extends State<WeatherPage>
                                             height: 48,
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: Colors.white12,
+                                              color: Color.fromARGB(10, 255, 255, 255),
 
                                               borderRadius:
                                                   BorderRadius.circular(20),
@@ -500,7 +510,7 @@ class _WeatherPageState extends State<WeatherPage>
                                                 item,
                                                 textAlign: TextAlign.center,
                                                 style: const TextStyle(
-                                                  color: Color.fromARGB(200, 255, 255, 255),
+                                                  color: Color.fromARGB(170, 255, 255, 255),
                                                 ),
                                               ),
                                             ),
@@ -588,7 +598,7 @@ class _WeatherPageState extends State<WeatherPage>
                               SizedBox(height: 10),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white12,
+                                  color: Color.fromARGB(10, 255, 255, 255),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 margin: const EdgeInsets.symmetric(
@@ -631,7 +641,7 @@ class _WeatherPageState extends State<WeatherPage>
         constraints: const BoxConstraints(minHeight: 60),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white12,
+          color: Color.fromARGB(10, 255, 255, 255),
           borderRadius: BorderRadius.circular(20),
         ),
         width: double.infinity,
