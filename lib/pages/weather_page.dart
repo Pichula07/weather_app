@@ -563,159 +563,161 @@ class _WeatherPageState extends State<WeatherPage>
       ],
     );
   }
-
-  Widget _buildForecastSection() {
-    if (forecastDays.isEmpty && forecastHours.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 10),
-        child: Text(
-          "Sem dados de previsão",
-          style: TextStyle(
-            color: Color.fromARGB(170, 255, 255, 255),
-          ),
+Widget _buildForecastSection() {
+  if (forecastDays.isEmpty && forecastHours.isEmpty) {
+    return const Padding(
+      padding: EdgeInsets.only(top: 10),
+      child: Text(
+        "Sem dados de previsão",
+        style: TextStyle(
+          color: Color.fromARGB(170, 255, 255, 255),
         ),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    'Próximas Horas',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(170, 255, 255, 255),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ...List.generate(5, (index) {
-                  final item = forecastHours.length > index ? forecastHours[index] : '';
-                  String boldPart = '';
-                  String rest = item;
-                  final match = RegExp(r'^([^\s\-]+)[\s\-]+(.*)$').firstMatch(item);
-                  if (match != null) {
-                    boldPart = match.group(1) ?? '';
-                    rest = (match.group(2) ?? '').replaceAllMapped(
-                      RegExp(r'(\d+\.\d+)'),
-                      (m) => double.parse(m.group(1)!).round().toString(),
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(10, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            boldPart,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(170, 255, 255, 255),
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              rest,
-                              style: const TextStyle(
-                                color: Color.fromARGB(170, 255, 255, 255),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    'Próximos Dias',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(170, 255, 255, 255),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ...List.generate(5, (index) {
-                  final item = forecastDays.length > index ? forecastDays[index] : '';
-                  String boldPart = '';
-                  String rest = item;
-                  final match = RegExp(r'^([^\s\-]+)[\s\-]+(.*)$').firstMatch(item);
-                  if (match != null) {
-                    boldPart = match.group(1) ?? '';
-                    rest = (match.group(2) ?? '').replaceAllMapped(
-                      RegExp(r'(\d+\.\d+)'),
-                      (m) => double.parse(m.group(1)!).round().toString(),
-                    );
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(10, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            boldPart,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(170, 255, 255, 255),
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              rest,
-                              style: const TextStyle(
-                                color: Color.fromARGB(170, 255, 255, 255),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
+  
+  return Padding(
+    padding: const EdgeInsets.only(top: 10),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Coluna: Previsão por Horas
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Text(
+                  'Próximas Horas',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(170, 255, 255, 255),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...List.generate(5, (index) {
+                final item = forecastHours.length > index ? forecastHours[index] : '';
+                String boldPart = '';
+                String rest = item;
+                final match = RegExp(r'^([^\s\-]+)[\s\-]+(.*)$').firstMatch(item);
+                if (match != null) {
+                  boldPart = match.group(1) ?? '';
+                  rest = (match.group(2) ?? '').replaceAllMapped(
+                    RegExp(r'(\d+\.\d+)'),
+                    (m) => double.parse(m.group(1)!).round().toString(),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(10, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          boldPart,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(170, 255, 255, 255),
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            rest,
+                            style: const TextStyle(
+                              color: Color.fromARGB(170, 255, 255, 255),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Coluna: Previsão por Dias
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: Text(
+                  'Próximos Dias',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(170, 255, 255, 255),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...List.generate(5, (index) {
+                final item = forecastDays.length > index ? forecastDays[index] : '';
+                String boldPart = '';
+                String rest = item;
+                final match = RegExp(r'^([^\s\-]+)[\s\-]+(.*)$').firstMatch(item);
+                if (match != null) {
+                  boldPart = match.group(1) ?? '';
+                  rest = (match.group(2) ?? '').replaceAllMapped(
+                    RegExp(r'(\d+\.\d+)'),
+                    (m) => double.parse(m.group(1)!).round().toString(),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(10, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          boldPart,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(170, 255, 255, 255),
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            rest,
+                            style: const TextStyle(
+                              color: Color.fromARGB(170, 255, 255, 255),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildSunMoonSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -773,7 +775,7 @@ class _WeatherPageState extends State<WeatherPage>
         constraints: const BoxConstraints(minHeight: 60),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Color.fromARGB(10, 255, 255, 255),
+          color: const Color.fromARGB(10, 255, 255, 255),
           borderRadius: BorderRadius.circular(20),
         ),
         width: double.infinity,
