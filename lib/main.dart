@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-//import 'package:weather_app/pages/Cidades.dart'; // bckp com api e front juntos
-import 'package:weather_app/pages/weather_page.dart';
+import 'package:flutter/services.dart';
+import 'package:skyline/pages/Home.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   runApp(const MyApp());
 }
 
@@ -13,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WeatherPage(), // alterar para cidades se for usar
+      home: Home(),
     );
   }
 }

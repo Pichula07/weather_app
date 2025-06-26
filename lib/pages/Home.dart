@@ -4,64 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:lottie/lottie.dart';
-import '../services/weather_services.dart';
+import '../services/Api.dart';
 
-// Mapa de emojis local (caso queira customizar aqui)
-const Map<String, String> _emojiMap = {
-  '1': '☀️',
-  '2': '☀️',
-  '3': '☀️',
-  '4': '🌤️',
-  '5': '🌤️',
-  '6': '⛅️',
-  '20': '⛅️',
-  '21': '⛅️',
-  '23': '⛅️',
-  '7': '☁️',
-  '8': '☁️',
-  '19': '☁️',
-  '22': '☁️',
-  '13': '🌦️',
-  '14': '🌦️',
-  '12': '🌧️',
-  '18': '🌧️',
-  '16': '⛈️',
-  '17': '⛈️',
-  '15': '🌩️',
-  '25': '',
-  '26': '❄️',
-  '29': '☃️',
-  '24': '☃️',
-  '11': '🌫️',
-  '30': '🥵',
-  '31': '🥶',
-  '32': '🌬️',
-  '33': '🌔',
-  '34': '🌔',
-  '35': '☁️',
-  '36': '☁️',
-  '37': '☁️',
-  '38': '☁️',
-  '39': '🌧️',
-  '40': '🌧️',
-  '41': '⛈️',
-  '42': '⛈️',
-  '43': '🌧️',
-  '44': '❄️',
-};
-
-String _emojiForCode(String code) => _emojiMap[code] ?? '❓';
-
-class WeatherPage extends StatefulWidget {
-  const WeatherPage({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  _WeatherPageState createState() => _WeatherPageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _WeatherPageState extends State<WeatherPage>
+class _HomeState extends State<Home>
     with SingleTickerProviderStateMixin {
-  final weatherService = WeatherService();
+  final api = Api();
 
   String? cityName;
   String? weatherText;
@@ -130,7 +84,7 @@ class _WeatherPageState extends State<WeatherPage>
 
       final nomeLocal = extractedCity;
 
-      final locationKey = await weatherService.getCityCode(
+      final locationKey = await api.getCityCode(
         position.latitude,
         position.longitude,
       );
@@ -142,7 +96,7 @@ class _WeatherPageState extends State<WeatherPage>
         return;
       }
 
-      final current = await weatherService.getCurrentConditions(locationKey);
+      final current = await api.getCurrentConditions(locationKey);
       print('JSON de condições atuais: $current');
       if (current == null) {
         setState(() {
@@ -152,9 +106,9 @@ class _WeatherPageState extends State<WeatherPage>
         return;
       }
 
-      final nextHours = await weatherService.getNextFiveHours(locationKey);
-      final futureForecast = await weatherService.getForecast(locationKey);
-      final sunMoon = weatherService.getSunMoonData();
+      final nextHours = await api.getNextFiveHours(locationKey);
+      final futureForecast = await api.getForecast(locationKey);
+      final sunMoon = api.getSunMoonData();
       final sunriseValue = sunMoon['sunrise'] ?? '';
       final sunsetValue = sunMoon['sunset'] ?? '';
       final moonPhaseValue = sunMoon['moonPhase'] ?? '';
@@ -534,10 +488,8 @@ class _WeatherPageState extends State<WeatherPage>
             Expanded(
               child: Column(
                 children: [
-                  if (airQuality != null)
-                    _buildInfoTile('🍃✅', airQuality!),
                   if (uvCategory != null)
-                    _buildInfoTile('🌞📈', uvCategory!),
+                    _buildInfoTile('🌞😎',uvCategory!),
                   if (rainProbability != null)
                     _buildInfoTile('☔️🤷', '$rainProbability%'),
                   if (visibility != null)
@@ -550,7 +502,7 @@ class _WeatherPageState extends State<WeatherPage>
               child: Column(
                 children: [
                   if (averageHumidity != null)
-                    _buildInfoTile('🍃💧', '$averageHumidity%'),
+                    _buildInfoTile('🌁💧', '$averageHumidity%'),
                   if (windDirection != null && windSpeedValue != null)
                     _buildInfoTile('🌬️', '$windDirection, ${windSpeedValue!.round()} km/h'),
                   if (moonPhase != null)
