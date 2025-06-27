@@ -89,7 +89,7 @@ class HomeState extends State<Home>
       );
       if (locationKey == null) {
         setState(() {
-          error = 'Erro ao obter código da cidade. Tente novamente.';
+          error = 'Erro ao obter código da cidade.';
           isLoading = false;
         });
         return;
@@ -98,7 +98,7 @@ class HomeState extends State<Home>
       final current = await api.getCurrentConditions(locationKey);
       if (current == null) {
         setState(() {
-          error = 'Erro ao buscar clima atual. Tente novamente.';
+          error = 'Erro ao buscar clima atual.';
           isLoading = false;
         });
         return;
