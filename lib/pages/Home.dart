@@ -565,7 +565,7 @@ class HomeState extends State<Home>
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(10, 255, 255, 255),
+                        color: Color.fromARGB(10, 255, 255, 255),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -631,7 +631,7 @@ class HomeState extends State<Home>
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(10, 255, 255, 255),
+                        color: Color.fromARGB(10, 255, 255, 255),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
