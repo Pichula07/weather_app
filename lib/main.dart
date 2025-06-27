@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:skyline/pages/Home.dart';
+import 'package:skyline/pages/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

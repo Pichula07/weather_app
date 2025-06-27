@@ -33,38 +33,6 @@ class Api {
   Map<String, String?> getSunMoonData() {
     return _sunMoonData;
   }
-  Future<List<Map<String, String>>> searchCities(String query) async {
-  final List<Map<String, String>> cityResults = [];
-
-  for (var key in _apiKeys) {
-    final url = Uri.parse(
-      'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=$key&q=$query&language=pt-br',
-    );
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final List data = jsonDecode(response.body);
-
-        for (var item in data) {
-          cityResults.add({
-            'cityCode': item['Key'],
-            'name': item['LocalizedName'],
-            'state': item['AdministrativeArea']['LocalizedName'],
-            'country': item['Country']['LocalizedName'],
-          });
-        }
-
-        break; // sucesso, para de tentar outras chaves
-      }
-    } catch (e) {
-      // ignora erro e tenta com próxima key
-    }
-  }
-
-  return cityResults;
-}
 
   Future<String?> getCityCode(double lat, double lon) async {
     for (var key in _apiKeys) {
@@ -96,9 +64,7 @@ class Api {
       final condition = data[0]['WeatherText'];
       final temp = data[0]['Temperature']['Metric']['Value'];
       final icon = data[0]['WeatherIcon'].toString();
-      if (kDebugMode) {
-        print('Resposta completa de getCurrentConditions: $data');
-      }
+      
       
 
     return {
@@ -158,10 +124,7 @@ class Api {
             'WaningCrescent': 'Minguante 🌘',
           };
           final moonPhase = moonPhaseMap[rawPhase] ?? 'Desconhecida 🌚';
-          if (kDebugMode) {
-            print('Fase da Lua recebida: $moonPhase');
-          }
-          this._sunMoonData = {
+          _sunMoonData = {
             'sunrise': sunrise,
             'sunset': sunset,
             'moonPhase': moonPhase,
@@ -181,9 +144,6 @@ Future<List<String>> getNextFiveHours(String locationKey) async {
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body) as List;
-    if (kDebugMode) {
-      print('Resposta completa de getNextFiveHours: $data');
-    }
 
     final now = DateTime.now().subtract(Duration(minutes: DateTime.now().minute));
 

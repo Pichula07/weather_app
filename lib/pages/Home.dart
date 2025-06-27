@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:lottie/lottie.dart';
-import '../services/Api.dart';
+import '../services/api.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home>
+class HomeState extends State<Home>
     with SingleTickerProviderStateMixin {
   final api = Api();
 
@@ -65,7 +65,6 @@ class _HomeState extends State<Home>
         position.latitude,
         position.longitude,
       );
-      print('Placemarks: $placemarks');
 
       String extractedCity = "Local Desconhecido";
       if (placemarks.isNotEmpty) {
@@ -97,7 +96,6 @@ class _HomeState extends State<Home>
       }
 
       final current = await api.getCurrentConditions(locationKey);
-      print('JSON de condições atuais: $current');
       if (current == null) {
         setState(() {
           error = 'Erro ao buscar clima atual. Tente novamente.';
@@ -152,7 +150,6 @@ class _HomeState extends State<Home>
         error = 'Erro ao buscar dados: $e';
         isLoading = false;
       });
-      print('Erro em fetchWeatherData: $e');
     }
   }
 
@@ -174,7 +171,9 @@ class _HomeState extends State<Home>
     }
 
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
     );
   }
 
@@ -425,7 +424,7 @@ class _HomeState extends State<Home>
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
             child: Text(
-              'Mínima de ${minTemperature}ºC e Máxima de ${maxTemperature}ºC',
+              'Mínima de $minTemperatureºC e Máxima de $maxTemperatureºC',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -439,7 +438,7 @@ class _HomeState extends State<Home>
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Color.fromARGB(10, 255, 255, 255),
+                color: const Color.fromARGB(10, 255, 255, 255),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -566,7 +565,7 @@ class _HomeState extends State<Home>
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(10, 255, 255, 255),
+                        color: const Color.fromARGB(10, 255, 255, 255),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -632,7 +631,7 @@ class _HomeState extends State<Home>
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(10, 255, 255, 255),
+                        color: const Color.fromARGB(10, 255, 255, 255),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -692,7 +691,7 @@ class _HomeState extends State<Home>
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color: Color.fromARGB(10, 255, 255, 255),
+            color: const Color.fromARGB(10, 255, 255, 255),
             borderRadius: BorderRadius.circular(20),
           ),
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -725,7 +724,7 @@ class _HomeState extends State<Home>
         constraints: const BoxConstraints(minHeight: 60),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Color.fromARGB(10, 255, 255, 255),
+          color: const Color.fromARGB(10, 255, 255, 255),
           borderRadius: BorderRadius.circular(20),
         ),
         width: double.infinity,
