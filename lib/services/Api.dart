@@ -33,6 +33,38 @@ class Api {
   Map<String, String?> getSunMoonData() {
     return _sunMoonData;
   }
+  Future<List<Map<String, String>>> searchCities(String query) async {
+  final List<Map<String, String>> cityResults = [];
+
+  for (var key in _apiKeys) {
+    final url = Uri.parse(
+      'http://dataservice.accuweather.com/locations/v1/cities/autocomplete?apikey=$key&q=$query&language=pt-br',
+    );
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+
+        for (var item in data) {
+          cityResults.add({
+            'cityCode': item['Key'],
+            'name': item['LocalizedName'],
+            'state': item['AdministrativeArea']['LocalizedName'],
+            'country': item['Country']['LocalizedName'],
+          });
+        }
+
+        break; // sucesso, para de tentar outras chaves
+      }
+    } catch (e) {
+      // ignora erro e tenta com próxima key
+    }
+  }
+
+  return cityResults;
+}
 
   Future<String?> getCityCode(double lat, double lon) async {
     for (var key in _apiKeys) {
