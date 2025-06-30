@@ -1,5 +1,5 @@
-name: weather_app
-description: "Weather application for Android devices."
+name: skyline
+description: "Dinamyc weather application"
 
 publish_to: "none"
 version: 1.0.0+1

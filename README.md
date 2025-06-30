@@ -1,16 +1,12 @@
-# weather_app
+# SkyLine - Aplicativo de metereologia
+Aplicação desenvolvida em Flutter e utilizando set de APIs da AccuWeather para Consulta do clima atual em detalhes, próximas horas, dias e Circulo cardiano
 
-A new Flutter project.
+Aplicatico desenvolvido por Ricieri A Piana Nava e João Pedro Murari 
+Disciplina de Projeto integrador VI do Curso Ciencia da Comutação
+Professor: Daniel Tormen Menin
+Uri Erechim 06/2025
 
-## Getting Started
+Para executar o aplicativo, é necessário um dispositivo Android com o modo desenvolvedor ativado, conectado ao computador. Em seguida, utilize o comando flutter pub get para instalar as dependências e inicie o aplicativo com o comando flutter run.
+Ou instalar o APK.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Documentação escrita em: https://docs.google.com/document/d/1Mc6PAXQqTGyWJkagZT21DRLJ7fsSWQet2BNu2gk7qXk/edit?usp=sharing

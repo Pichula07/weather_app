@@ -1,9 +1,8 @@
-// lib/services/weather_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
-// Mapa de emojis para códigos de ícone
+// Mapa de emojis para códigos de clima
 const Map<String, String> _emojiMap = {
   '1': '☀️', '2': '☀️', '3': '☀️', '4': '🌤️', '5': '🌤️',
   '6': '⛅️', '20': '⛅️','21': '⛅️','23': '⛅️',
@@ -20,7 +19,7 @@ const Map<String, String> _emojiMap = {
 // Retorna emoji pelo código
 String _emojiForCode(String code) => _emojiMap[code] ?? '❓';
 
-class WeatherService {
+class Api {
   final List<String> _apiKeys = [
     '4GOuMoZdG4mwaLb6XHCtlNHUG2ImfxIA',
     'oXMcfI3kHAFIQsq6xgqMjKnEtm5xYFEP',
@@ -65,9 +64,7 @@ class WeatherService {
       final condition = data[0]['WeatherText'];
       final temp = data[0]['Temperature']['Metric']['Value'];
       final icon = data[0]['WeatherIcon'].toString();
-      if (kDebugMode) {
-        print('Resposta completa de getCurrentConditions: $data');
-      }
+      
       
 
     return {
@@ -127,10 +124,7 @@ class WeatherService {
             'WaningCrescent': 'Minguante 🌘',
           };
           final moonPhase = moonPhaseMap[rawPhase] ?? 'Desconhecida 🌚';
-          if (kDebugMode) {
-            print('Fase da Lua recebida: $moonPhase');
-          }
-          this._sunMoonData = {
+          _sunMoonData = {
             'sunrise': sunrise,
             'sunset': sunset,
             'moonPhase': moonPhase,
@@ -150,9 +144,6 @@ Future<List<String>> getNextFiveHours(String locationKey) async {
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body) as List;
-    if (kDebugMode) {
-      print('Resposta completa de getNextFiveHours: $data');
-    }
 
     final now = DateTime.now().subtract(Duration(minutes: DateTime.now().minute));
 
