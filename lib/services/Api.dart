@@ -174,4 +174,32 @@ Future<List<String>> getNextFiveHours(String locationKey) async {
 
   return [];
 }
+Future<List<Map<String, dynamic>>> searchCities(String query) async {
+    for (var key in _apiKeys) {
+      final url = Uri.parse(
+        'http://dataservice.accuweather.com/locations/v1/cities/autocomplete'
+        '?apikey=$key&q=$query&language=pt-br',
+      );
+
+      try {
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data is List) {
+            return data.map<Map<String, dynamic>>((item) {
+              return {
+                'name': item['LocalizedName'],
+                'country': item['Country']['LocalizedName'],
+                'key': item['Key'],
+              };
+            }).toList();
+          }
+        }
+      } catch (_) {}
+    }
+
+    return [];
+  }
 }
+
