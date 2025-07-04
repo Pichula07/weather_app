@@ -292,48 +292,110 @@ class HomeState extends State<Home>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(40),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              cityName ?? "Localização...",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w600,
-                color: Color.fromARGB(180, 255, 255, 255),
-              ),
+  return PreferredSize(
+    preferredSize: const Size.fromHeight(40),
+    child: ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            cityName ?? "Localização...",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.w600,
+              color: Color.fromARGB(180, 255, 255, 255),
             ),
-            leading: IconButton(
-              icon: const Icon(Icons.search, color: Color.fromARGB(180, 255, 255, 255)),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.search, color: Color.fromARGB(180, 255, 255, 255)),
+            onPressed: _showSearchDialog,
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Color.fromARGB(180, 255, 255, 255)),
               onPressed: () {
-                // implementar ação de pesquisa
+                setState(() {
+                  isLoading = true;
+                  error = null;
+                });
+                fetchWeatherData();
               },
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Color.fromARGB(180, 255, 255, 255)),
-                onPressed: () {
-                  setState(() {
-                    isLoading = true;
-                    error = null;
-                  });
-                  fetchWeatherData();
-                },
-              ),
-            ],
-          ),
+          ],
         ),
       ),
-    );
+    ),
+  );
+}
+void _showSearchDialog() async {
+  final result = await showSearch(
+    context: context,
+    delegate: CitySearchDelegate(api),
+  );
+  if (result != null && result.isNotEmpty) {
+    await _searchCityAndFetchWeather(result);
   }
+}
 
+Future<void> _searchCityAndFetchWeather(String cityNameInput) async {
+  setState(() {
+    isLoading = true;
+    error = null;
+  });
+
+  try {
+    final results = await api.searchCities(cityNameInput);
+    if (results.isEmpty) {
+      setState(() {
+        error = 'Cidade não encontrada';
+        isLoading = false;
+      });
+      return;
+    }
+
+    final selectedCity = results.first;
+    final locationKey = selectedCity['key'];
+
+    final current = await api.getCurrentConditions(locationKey);
+    final forecast = await api.getForecast(locationKey);
+    final hourly = await api.getNextFiveHours(locationKey);
+    final sunMoon = api.getSunMoonData();
+
+    setState(() {
+      cityName = '${selectedCity['name']}, ${selectedCity['country']}';
+      weatherText = current?['text'];
+      temperature = current?['temp']?.toDouble();
+      weatherIconPhrase = current?['icon'];
+      forecastHours = hourly;
+      forecastDays = forecast;
+
+      averageHumidity = current?['humidity'];
+      uvCategory = current?['uvIndex']?.toString();
+      windSpeedValue = current?['windSpeed']?.toDouble();
+      windDirection = current?['windDirection'];
+      realFeel = current?['realFeel']?.toDouble();
+      visibility = current?['visibility']?.toDouble();
+      minTemperature = current?['minTemp']?.toString();
+      maxTemperature = current?['maxTemp']?.toString();
+
+      sunrise = sunMoon['sunrise'];
+      sunset = sunMoon['sunset'];
+      moonPhase = sunMoon['moonPhase'];
+      rainProbability = int.tryParse(sunMoon['rainProbability'] ?? '');
+
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      error = 'Erro ao buscar dados para a cidade';
+      isLoading = false;
+    });
+  }
+}
   Widget _buildLoading() {
     return const CircularProgressIndicator(color: Colors.white);
   }
@@ -881,4 +943,65 @@ class SunPathPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class CitySearchDelegate extends SearchDelegate<String> {
+  final Api api;
+
+  CitySearchDelegate(this.api);
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () => query = '',
+      ),
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () => close(context, ''),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Container(); // Result handled in buildSuggestions
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isEmpty) {
+      return Center(child: Text('Digite o nome da cidade...'));
+    }
+
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: api.searchCities(query),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final results = snapshot.data!;
+        if (results.isEmpty) {
+          return Center(child: Text('Nenhuma cidade encontrada.'));
+        }
+
+        return ListView.builder(
+          itemCount: results.length,
+          itemBuilder: (context, index) {
+            final city = results[index];
+            return ListTile(
+              title: Text('${city['name']}, ${city['country']}'),
+              onTap: () => close(context, city['name']),
+            );
+          },
+        );
+      },
+    );
+  }
 }
